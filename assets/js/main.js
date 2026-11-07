@@ -61,10 +61,24 @@
       buttons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filter') === value ? 'true' : 'false'); });
       if (counter) counter.textContent = shown + (shown === 1 ? ' proiect' : ' proiecte');
     }
+    /* categoria din adresă (ex. lucrari.html#scari) */
+    function fromHash() {
+      var slug = decodeURIComponent((location.hash || '').replace('#', ''));
+      var match = null;
+      buttons.forEach(function (b) { if (slug && b.getAttribute('data-slug') === slug) match = b; });
+      apply(match ? match.getAttribute('data-filter') : 'all');
+    }
     buttons.forEach(function (b) {
-      b.addEventListener('click', function () { apply(b.getAttribute('data-filter')); });
+      b.addEventListener('click', function () {
+        apply(b.getAttribute('data-filter'));
+        var slug = b.getAttribute('data-slug');
+        if (slug !== null && window.history && history.replaceState) {
+          history.replaceState(null, '', slug ? '#' + slug : location.pathname + location.search);
+        }
+      });
     });
-    apply('all');
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
   });
 
   /* ---------- galerie proiect ---------- */
